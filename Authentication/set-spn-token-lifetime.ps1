@@ -5,10 +5,12 @@
        
        Depends on: https://www.powershellgallery.com/packages/AzureADPreview/2.0.0.114
 
+       Note: Connect-AzureAD - not just Azure
    .EXAMPLE
         e.g. set lifetime to 10min
+
     
 #>
-
+Connect-AzureAD
 New-AzureADPolicy -Definition @('{"TokenLifetimePolicy":{"Version":1,"AccessTokenLifetime":"00:10:00","MaxAgeSessionSingleFactor":"00:10:00"}}') -DisplayName "WebPolicyScenario" -IsOrganizationDefault $false -Type "TokenLifetimePolicy"
 Add-AzureADServicePrincipalPolicy -Id "ServicePrincipalId" -RefObjectId "PolicyId"
