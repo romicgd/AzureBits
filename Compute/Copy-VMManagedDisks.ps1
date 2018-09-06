@@ -50,11 +50,6 @@ Param (
     [string]$Location="canadacentral"
     )
 
-#Import Module
-Import-Module "$PSScriptRoot\..\..\ITSAzure.psd1" -Force
-
-Connect-ITSAz
-
 Set-AzureRmContext -SubscriptionName $SourceSubscriptionName
 
 $vms =  Get-AzureRMVM -resourcegroup $SourceVMResourceGroup
