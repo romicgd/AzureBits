@@ -1,0 +1,213 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "ClientApplicationName": {
+      "type": "string"
+    },
+    "AuthProvider": {
+        "type": "string",
+        "defaultValue": "NoAuth",
+        "allowedValues": [
+          "AzureAD",
+          "NoAuth"
+        ]
+      },
+      "WebAppName": {
+      "type": "string"
+    },
+    "Domain": {
+        "type": "string"
+      },
+    "ClientId": {
+        "type": "string"
+      },
+    "ClientSecret": {
+        "type": "string"
+      },
+    "WebAppType": {
+      "type": "string",
+      "defaultValue": "app",
+      "allowedValues": [
+        "app",
+        "api"
+      ],
+      "metadata": {
+        "description": "Describes plan's pricing tier and capacity. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
+    },
+    "AppServicePlanName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Name of the App Service Plan resource."
+      }
+    },
+    "AppServicePlanResourceGroup": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Name of the App Service Plan resource."
+      }
+    },
+    "AppServiceEnvironmentName": {
+        "type": "string",
+        "metadata": {
+          "description": "The name of the App Service Environment where the app service plan will be created."
+        }
+      },
+    "AppServiceEnvironmentResourceGroup": {
+        "metadata": {
+          "description": "The name of the App Service Environment where the app service plan will be created."
+        },
+        "type": "string"
+    }
+  },
+  "variables": {
+    "web1apiWebConfigProperties": {
+      "cors": {
+        "allowedOrigins": [
+          "*"
+        ]
+      }
+    },
+    "web2apiWebConfigProperties": {
+      "cors": {
+        "allowedOrigins": [
+          "*"
+        ]
+      }
+    },
+    "web3apiWebConfigProperties": {
+      "cors": {
+        "allowedOrigins": [
+          "*"
+        ]
+      }
+    },
+    "DefaultWebConfigProperties": {
+      "cors": {
+        "allowedOrigins": [
+        ]
+      }
+    },    
+    "web1apiAppSettingsProperties": {
+      "WEBSITE_NODE_DEFAULT_VERSION": "6.9.1",
+    },
+    "web2apiAppSettingsProperties": {
+      "WEBSITE_NODE_DEFAULT_VERSION": "6.9.1",
+      "MSDEPLOY_RENAME_LOCKED_FILES": "1",
+      "ASPNETCORE_ENVIRONMENT": "gocloud_prod",
+      "WEBSITE_TIME_ZONE": "Eastern Standard Time"
+    },
+    "web3appAppSettingsProperties": {
+      "WEBSITE_NODE_DEFAULT_VERSION": "6.9.1",
+      "MSDEPLOY_RENAME_LOCKED_FILES": "1"
+    },
+    "AuthProperties-AzureAD": {
+        "enabled": true,
+        "unauthenticatedClientAction": "RedirectToLoginPage",
+        "tokenStoreEnabled": true,
+        "allowedExternalRedirectUrls": null,
+        "defaultProvider": "AzureActiveDirectory",
+        "clientId": "[parameters('ClientId')]",
+        "clientSecret": "[parameters('ClientSecret')]",
+        "issuer": "https://sts.windows.net/%tenantid%/",
+        "allowedAudiences": [
+            "[concat('https://', parameters('WebAppName'), '.', parameters('Domain'))]",
+            "[concat('https://', parameters('WebAppName'), '.', parameters('Domain'), '/.auth/login/aad/callback')]"
+        ],
+        "additionalLoginParams": null,
+        "isAadAutoProvisioned": false,
+        "googleClientId": null,
+        "googleClientSecret": null,
+        "googleOAuthScopes": null,
+        "facebookAppId": null,
+        "facebookAppSecret": null,
+        "facebookOAuthScopes": [
+          ""
+        ],
+        "twitterConsumerKey": null,
+        "twitterConsumerSecret": null,
+        "microsoftAccountClientId": null,
+        "microsoftAccountClientSecret": null,
+        "microsoftAccountOAuthScopes": [
+          ""
+        ]    
+    },
+    "AuthProperties-NoAuth" : {
+        "enabled": false,
+        "unauthenticatedClientAction": null,
+        "tokenStoreEnabled": null,
+        "allowedExternalRedirectUrls": null,
+        "defaultProvider": null,
+        "clientId": null,
+        "clientSecret": null,
+        "issuer": null,
+        "allowedAudiences": null,
+        "additionalLoginParams": null,
+        "isAadAutoProvisioned": false,
+        "googleClientId": null,
+        "googleClientSecret": null,
+        "googleOAuthScopes": null,
+        "facebookAppId": null,
+        "facebookAppSecret": null,
+        "facebookOAuthScopes": null,
+        "twitterConsumerKey": null,
+        "twitterConsumerSecret": null,
+        "microsoftAccountClientId": null,
+        "microsoftAccountClientSecret": null,
+        "microsoftAccountOAuthScopes": null
+      }
+},  
+"resources": [
+      {
+        "name": "[parameters('WebAppName')]",
+        "type": "Microsoft.Web/sites",
+        "kind": "[parameters('WebAppType')]",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2015-08-01",
+        "tags": {},
+        "properties": {
+          "name": "[parameters('WebAppName')]",
+          "serverFarmId": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('AppServicePlanResourceGroup'),'/providers/Microsoft.Web/serverFarms/', parameters('AppServicePlanName'))]",
+          "siteConfig": {
+            "AlwaysOn": true,
+            "webSocketsEnabled": true
+          },
+          "hostingEnvironmentProfile": {
+            "id": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('AppServiceEnvironmentResourceGroup'),'/providers/Microsoft.Web/hostingEnvironments/', parameters('AppServiceEnvironmentName'))]"
+          }
+        },
+        "resources": [
+          {
+            "name": "appsettings",
+            "type": "config",
+            "apiVersion": "2015-08-01",
+            "dependsOn": [
+              "[resourceId('Microsoft.Web/sites', parameters('WebAppName'))]"
+            ],
+            "properties": "[variables(concat(parameters('ClientApplicationName'), parameters('WebAppType'), 'AppSettingsProperties'))]"
+          },
+          {
+            "name": "web",
+            "type": "config",
+            "apiVersion": "2015-08-01",
+            "dependsOn": [
+              "[resourceId('Microsoft.Web/sites', parameters('WebAppName'))]"
+            ],
+            "properties": "[if(equals(parameters('WebAppType'), 'api'), variables(concat(parameters('ClientApplicationName'),'APIWebConfigProperties')), variables('DefaultWebConfigProperties'))]"
+        },        
+        {
+          "name": "authsettings",
+          "type": "config",
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', parameters('WebAppName'))]"
+          ],
+          "properties": "[variables(concat('AuthProperties-', parameters('AuthProvider')))]"
+        }        
+        ]
+      } 
+    ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "ClientApplicationName": {
+      "value": "ClientApplicationName",
+      "metadata": {
+        "description": "Name of registred client application."
+      }
+    },
+    "AuthProvider": {
+      "value": "AuthProvider",
+      "metadata": {
+        "description": "Name of Authentication Provider."
+      }
+    },
+    "WebAppName": {
+      "value": "WebAppName",
+      "metadata": {
+        "description": "Name of the Web App to deploy."
+      }
+    },
+    "Domain": {
+      "value": "domain",
+      "metadata": {
+        "description": "Web app registration domain."
+      }
+    },
+    "ClientId": {
+      "value": "ClientId",
+      "metadata": {
+        "description": "App ID of registered application."
+      }
+    },
+    "ClientSecret": {
+      "value": "ClientSecret",
+      "metadata": {
+        "description": "Password cdredential of registered application."
+      }
+    },
+    "WebAppType": {
+      "value": "WebAppType",
+      "metadata": {
+        "description": "Type of Web App to deploy."
+      }
+    },
+    "AppServicePlanName": {
+      "value": "AppServicePlanName",
+      "metadata": {
+        "description": "AppServicePlanName"
+      }
+    },
+    "AppServicePlanResourceGroup": {
+      "value": "AppServicePlanResourceGroup",
+      "metadata": {
+        "description": "AppServicePlanResourceGroup"
+      }
+    },
+    "AppServiceEnvironmentName": {
+      "value": "AppServiceEnvironmentName",
+      "metadata": {
+        "description": "AppServiceEnvironmentName"
+      }
+    },
+    "AppServiceEnvironmentResourceGroup": {
+      "value": "AppServiceEnvironmentResourceGroup",
+      "metadata": {
+        "description": "AppServiceEnvironmentResourceGroup"
+      }
+    }
+  }
+}
+
+
