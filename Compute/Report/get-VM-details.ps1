@@ -1,9 +1,3 @@
-get-Azurermvm  | select @{N='vmSize';E={$_.HardwareProfile.VMsize}}, 
-@{N='OS'; E={$_.storageProfile.OSDisk.OSType}} | group -property vmsize, OS | select count, name | sort name
-
-
-$vmsizearr = get-Azurermvm  
-
 foreach ($vm in $vmsizearr) {
     $vmsize=Get-AzureRmVMSize -resourcegroupname $vm.resourcegroupname -vmname $vm.name | where-object {$_.name -eq $($vm.HardwareProfile.VMsize)} 
     $nics = Get-AzureRmNetworkInterface 
@@ -16,6 +10,4 @@ foreach ($vm in $vmsizearr) {
     }
     $vmIPStr=$vmIPs -join ','    
     "$($vm.name) - $($vm.HardwareProfile.VMsize): CPU[$($vmsize.NumberOfCores)], RAM[$($vmsize.MemoryInMB/1024)], Disk[$($vmsize.OSDiskSizeInMB/1024)], IP[$vmIPStr]" 
-}    
-
-
+}  
