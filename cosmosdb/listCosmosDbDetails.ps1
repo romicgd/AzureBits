@@ -40,13 +40,19 @@ foreach($cosmosdbAccount in $dbaccounts) {
         Write-Output "Database [$($cosmosDbDatabase.id)]"
         $cosmosDbContext = New-CosmosDbContext -Account $dbaccountProp.Name -Database $cosmosDbDatabase.id -Key $primaryKey
         $database = Get-CosmosDbDatabase -Context $cosmosDbContext -id $cosmosDbDatabase.id
-            $collections =  Get-CosmosDbCollection -Context $cosmosDbContext 
+        $collections =  Get-CosmosDbCollection -Context $cosmosDbContext 
+        $offers = Get-CosmosDbOffer -Context $cosmosDbContext
         foreach($cosmosDBcollection in $collections) {
             Write-Output "Collection [$($cosmosDBcollection.id)] PartitionKey[$($cosmosDBcollection.partitionKey.Paths)]"
             if(-not "TablesDB" -match $dbaccountProp.tags.defaultExperience) {
                 $collectionSize= Get-CosmosDbCollectionSize -Context $cosmosDbContext -id $cosmosDBcollection.id
                 Write-output ($collectionsize | Out-String )
-            }    
+            }
+            foreach($offer in $offers) {
+                if($off.resource -eq $cosmosDBcollection._self) {
+                    Write-output ($off.content | Out-String )
+                }
+            }        
         }
     }    
 }
