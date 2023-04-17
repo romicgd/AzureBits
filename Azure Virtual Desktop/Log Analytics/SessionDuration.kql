@@ -1,0 +1,11 @@
+let Events = WVDConnections 
+| where _ResourceId contains "hostpool";
+Events
+| where State == "Connected"
+| project CorrelationId , UserName, ResourceAlias , StartTime=TimeGenerated
+| join (Events
+| where State == "Completed"
+| project EndTime=TimeGenerated, CorrelationId)
+on CorrelationId
+| project StartTime, Duration = EndTime - StartTime, UserName 
+| sort by Duration asc
