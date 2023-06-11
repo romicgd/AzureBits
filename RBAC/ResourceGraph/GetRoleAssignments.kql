@@ -1,0 +1,7 @@
+// to get Role definition use az role definition list --name "Contributor"
+// For build-in role Ids can also https://learn.microsoft.com/en-us/azure/governance/resource-graph/reference/supported-tables-resources 
+authorizationresources 
+| where type == 'microsoft.authorization/roleassignments' 
+| extend roleDefId = tostring(properties.roleDefinitionId), principalType = tostring(properties.principalType)
+| where roleDefId == "/providers/Microsoft.Authorization/RoleDefinitions/%your_role_id_here%"  
+| where principalType == "Group"
