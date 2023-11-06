@@ -1,0 +1,19 @@
+Resources
+| where type =~ "microsoft.network/networksecuritygroups" | 
+join kind=leftouter (ResourceContainers | where type=='microsoft.resources/subscriptions' | project SubcriptionName=name, subscriptionId) on subscriptionId
+// Only if you don't want to see all, add more resourceGroups as needed: or resourceGroup == 'xxx'
+| mv-expand rules=properties.securityRules
+| extend direction = tostring(rules.properties.direction)
+| extend priority = toint(rules.properties.priority)
+| extend description = rules.properties.description
+| extend destprefixes = case(isnull(rules.properties.destinationAddressPrefix), strcat_array(rules.properties.destinationAddressPrefixes, ","), rules.properties.destinationAddressPrefix)
+| extend destport = rules.properties.destinationPortRange
+| extend sourceprefixes = case(isnull(rules.properties.sourceAddressPrefix), strcat_array(rules.properties.sourceAddressPrefixes, ","), rules.properties.sourceAddressPrefix)
+| extend sourceport = rules.properties.sourcePortRange
+| extend subnet_name = split((split(tostring(properties.subnets), '/'))[10], '"')[0]
+| extend rule_name = rules.name
+//| where destprefix == '*'
+| project SubcriptionName, resourceGroup, subnet_name, name, rule_name, direction, priority, destprefixes, destport, sourceprefixes, sourceport, description 
+| where SubcriptionName !contains('sub1') and SubcriptionName !contains('sub2')
+| where rule_name contains 'myrule'
+| sort by SubcriptionName, resourceGroup asc, name, direction asc, priority asc
