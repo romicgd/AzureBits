@@ -1,0 +1,8 @@
+Resources |
+where type =~ "microsoft.network/virtualnetworks" | 
+join kind=leftouter (ResourceContainers | where type=='microsoft.resources/subscriptions' | project SubcriptionName=name, subscriptionId) on subscriptionId |
+extend subnet = properties.subnets |
+mv-expand subnet |
+project SubcriptionName, VNetName=name, VNetCIDR=properties.addressSpace.addressPrefixes, subnetName=subnet.name, subnetCIDR=case(isnull(subnet.properties.addressPrefix), subnetCIDR1=strcat_array(subnet.properties.addressPrefixes, ","), subnet.properties.addressPrefix)
+| where subnetName contains "-pln" or subnetName contains '-pe'
+| where SubcriptionName !contains('LTC') and SubcriptionName !contains('sdc')
